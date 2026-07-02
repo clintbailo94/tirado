@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tirado AI — Autonomous Trading, Powered by Intelligence</title>
+<meta name="description" content="Describe your trading strategy in plain English. Tirado AI turns it into autonomous, guardrail-protected execution — powered by proprietary LLM agents.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2300c8f0'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpolygon points='16,6 26,16 16,26 6,16' fill='none' stroke='white' stroke-width='2.5'/%3E%3Cline x1='16' y1='11' x2='16' y2='21' stroke='white' stroke-width='2.5'/%3E%3Cline x1='11' y1='16' x2='21' y2='16' stroke='white' stroke-width='2.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ─────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg-deep:    #03030a;
+  --bg-surface: #08081a;
+  --bg-card:    #0d0d24;
+  --border:     rgba(255,255,255,0.05);
+  --border-hover: rgba(255,255,255,0.10);
+  --text:       #ededf5;
+  --text-dim:   #7e7e9a;
+  --accent-1:   #00c8f0;
+  --accent-2:   #8b5cf6;
+  --accent-3:   #22d3ee;
+  --glow-1:     rgba(0,200,240,0.25);
+  --glow-2:     rgba(139,92,246,0.25);
+  --radius:     18px;
+  --radius-sm:  12px;
+  --radius-xs:  8px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg-deep);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Background Effects ───────────────────────────────────── */
+.bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 70% 50% at 50% 0%, black 25%, transparent 75%);
+}
+
+.bg-orb {
+  position: fixed; border-radius: 50%; filter: blur(140px); opacity: 0.10; z-index: 0; pointer-events: none;
+  animation: orb-drift 20s ease-in-out infinite;
+}
+.bg-orb--1 { width: 800px; height: 800px; background: var(--accent-1); top: -300px; left: -200px; animation-delay: 0s; }
+.bg-orb--2 { width: 700px; height: 700px; background: var(--accent-2); bottom: -250px; right: -200px; animation-delay: -7s; }
+.bg-orb--3 { width: 500px; height: 500px; background: var(--accent-3); top: 55%; left: 55%; transform: translate(-50%, -50%); animation-delay: -14s; }
+
+@keyframes orb-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -20px) scale(1.05); }
+  66% { transform: translate(-20px, 25px) scale(0.95); }
+}
+
+/* ── Layout ───────────────────────────────────────────────── */
+.container { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 1; }
+.container--narrow { max-width: 920px; }
+.container--tight { max-width: 680px; }
+
+section { padding: 140px 0; position: relative; z-index: 1; }
+
+/* ── Typography ───────────────────────────────────────────── */
+.section-label {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--accent-1); margin-bottom: 18px;
+}
+.section-label::before {
+  content: ''; display: inline-block; width: 24px; height: 1.5px;
+  background: linear-gradient(90deg, var(--accent-1), transparent);
+  border-radius: 1px;
+}
+
+.section-title {
+  font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 800; line-height: 1.12;
+  letter-spacing: -0.025em; margin-bottom: 22px;
+}
+.section-title .highlight {
+  background: linear-gradient(135deg, var(--accent-1) 0%, #a78bfa 40%, var(--accent-2) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section-subtitle {
+  font-size: 1.1rem; color: var(--text-dim); max-width: 560px; line-height: 1.7; font-weight: 400;
+}
+
+/* ── Nav ──────────────────────────────────────────────────── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 16px 0;
+  background: transparent;
+  transition: background 0.35s, backdrop-filter 0.35s, box-shadow 0.35s, padding 0.35s;
+}
+.nav--scrolled {
+  background: rgba(3,3,10,0.78);
+  backdrop-filter: blur(24px) saturate(1.4); -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 1px 0 var(--border);
+  padding: 10px 0;
+}
+
+.nav-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: 1240px; margin: 0 auto; padding: 0 28px;
+}
+
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 800; font-size: 1.3rem; letter-spacing: -0.025em;
+  color: #fff; text-decoration: none;
+}
+.nav-logo-icon {
+  width: 35px; height: 35px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  display: flex; align-items: center; justify-content: center;
+}
+
+.nav-cta {
+  padding: 9px 20px; border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: #fff; font-weight: 600; font-size: 0.84rem;
+  text-decoration: none; transition: all var(--transition);
+  letter-spacing: -0.01em;
+}
+.nav-cta:hover {
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.20);
+  transform: translateY(-1px);
+}
+
+/* ── Hero ─────────────────────────────────────────────────── */
+.hero { min-height: 100vh; display: flex; align-items: center; padding: 180px 0 140px; }
+.hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 90px; align-items: center; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 16px; border-radius: 999px;
+  border: 1px solid rgba(0,200,240,0.20);
+  background: rgba(0,200,240,0.05);
+  font-size: 0.78rem; font-weight: 500; color: var(--accent-1);
+  margin-bottom: 32px; letter-spacing: -0.01em;
+}
+.hero-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-1); animation: pulse-dot 2.5s infinite; box-shadow: 0 0 8px var(--glow-1); }
+
+@keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+.hero-title {
+  font-size: clamp(3rem, 7vw, 4.6rem); font-weight: 900;
+  line-height: 1.05; letter-spacing: -0.035em; margin-bottom: 26px;
+}
+.hero-title .hl {
+  background: linear-gradient(135deg, var(--accent-1) 0%, #a78bfa 45%, var(--accent-2) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-desc { font-size: 1.12rem; color: var(--text-dim); line-height: 1.7; max-width: 480px; margin-bottom: 40px; font-weight: 400; }
+
+.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 15px 32px; border-radius: 999px;
+  font-weight: 600; font-size: 0.94rem; text-decoration: none;
+  transition: all var(--transition); cursor: pointer; border: none;
+  letter-spacing: -0.01em;
+}
+.btn--primary {
+  background: linear-gradient(135deg, var(--accent-1), #6366f1, var(--accent-2));
+  color: #fff; box-shadow: 0 0 40px var(--glow-1), 0 8px 24px rgba(0,0,0,0.3);
+  background-size: 200% 100%; animation: btn-shimmer 4s ease-in-out infinite;
+}
+@keyframes btn-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.btn--primary:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 0 60px var(--glow-1), 0 12px 32px rgba(0,0,0,0.4); }
+.btn--ghost {
+  background: transparent; color: #fff;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.btn--ghost:hover { border-color: rgba(255,255,255,0.30); background: rgba(255,255,255,0.03); transform: translateY(-1px); }
+
+.hero-visual {
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+
+.hero-terminal {
+  width: 100%; max-width: 460px;
+  background: rgba(13,13,36,0.75); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius); overflow: hidden;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.55), 0 0 100px var(--glow-2);
+}
+.hero-terminal-bar {
+  display: flex; align-items: center; gap: 7px; padding: 14px 18px;
+  background: rgba(255,255,255,0.025); border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.hero-terminal-dot { width: 11px; height: 11px; border-radius: 50%; }
+.hero-terminal-dot--r { background: #ff5f56; }
+.hero-terminal-dot--y { background: #ffbd2e; }
+.hero-terminal-dot--g { background: #27c93f; }
+.hero-terminal-body { padding: 22px 20px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; line-height: 1.85; color: var(--text-dim); }
+.hero-terminal-body .prompt { color: var(--accent-1); }
+.hero-terminal-body .cursor { display: inline-block; width: 8px; height: 15px; background: var(--accent-1); animation: blink 1s steps(1) infinite; vertical-align: text-bottom; margin-left: 2px; border-radius: 1px; }
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+.hero-floating-card {
+  position: absolute; bottom: -24px; right: -36px;
+  background: rgba(13,13,36,0.85); backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: var(--radius-sm);
+  padding: 18px 20px; font-size: 0.8rem; box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+}
+.hero-floating-card .val { font-size: 1.4rem; font-weight: 700; color: #4ade80; letter-spacing: -0.02em; }
+.hero-floating-card .label { color: var(--text-dim); font-size: 0.7rem; margin-top: 3px; }
+
+/* ── How It Works ─────────────────────────────────────────── */
+.steps-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; margin-top: 60px; align-items: start; }
+
+.steps-col { display: flex; flex-direction: column; gap: 14px; }
+
+.step-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 30px 32px;
+  transition: all var(--transition);
+  position: relative; overflow: hidden; cursor: default;
+}
+.step-card::after {
+  content: ''; position: absolute; inset: 0; border-radius: var(--radius);
+  background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0,200,240,0.04), transparent 50%);
+  opacity: 0; transition: opacity 0.4s;
+}
+.step-card:hover { border-color: var(--border-hover); transform: translateY(-3px); box-shadow: 0 24px 56px rgba(0,0,0,0.35); }
+.step-card:hover::after { opacity: 1; }
+
+.step-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; border-radius: 10px;
+  background: linear-gradient(135deg, rgba(0,200,240,0.12), rgba(139,92,246,0.12));
+  font-weight: 800; font-size: 0.88rem; color: var(--accent-1);
+  margin-bottom: 16px;
+}
+
+.step-card h3 { font-size: 1.02rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.015em; }
+.step-card p { font-size: 0.86rem; color: var(--text-dim); line-height: 1.65; }
+
+/* Example Dashboard Panel */
+.example-panel {
+  background: #fff;
+  border: 1px solid #e8e8f0;
+  border-radius: 18px; overflow: hidden;
+  position: sticky; top: 110px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.04), 0 8px 36px rgba(0,0,0,0.06);
+  transition: box-shadow 0.3s;
+}
+
+.example-panel-bar {
+  display: flex; align-items: center; gap: 8px; padding: 15px 20px;
+  background: #fafafc; border-bottom: 1px solid #f0f0f5;
+}
+.example-panel-dot { width: 9px; height: 9px; border-radius: 50%; }
+.example-panel-dot--r { background: #ff5f56; }
+.example-panel-dot--y { background: #ffbd2e; }
+.example-panel-dot--g { background: #27c93f; }
+.example-panel-title {
+  font-size: 0.8rem; font-weight: 600; color: #1a1a2e;
+  margin-left: 6px; font-family: 'Inter', sans-serif;
+  letter-spacing: -0.015em;
+}
+
+.example-panel-body { padding: 0; font-family: 'Inter', sans-serif; }
+
+.example-dash-step {
+  padding: 18px 20px; border-bottom: 1px solid #f5f5f9;
+  transition: background 0.25s, border-color 0.25s;
+}
+.example-dash-step:last-child { border-bottom: none; }
+.example-dash-step.highlight {
+  background: #faf9fe;
+  border-left: 3px solid #8b5cf6;
+}
+
+.example-dash-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; color: #8b5cf6; margin-bottom: 10px;
+}
+.example-dash-label::before {
+  content: ''; display: block; width: 6px; height: 6px;
+  border-radius: 50%; background: #8b5cf6;
+}
+
+/* Message bubble */
+.example-msg {
+  background: #f8f9fc; border-radius: 12px; padding: 14px 16px;
+  font-size: 0.81rem; color: #3d3d55; line-height: 1.6;
+  border: 1px solid #eef0f6;
+}
+.example-msg .em { color: #7c3aed; font-weight: 600; }
+.example-confirm {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 8px; font-size: 0.73rem; color: #059669; font-weight: 600;
+}
+.example-confirm svg { flex-shrink: 0; }
+
+/* Q&A */
+.example-qa { display: flex; flex-direction: column; gap: 7px; }
+.example-qa-row {
+  display: flex; gap: 8px; font-size: 0.77rem; align-items: baseline;
+}
+.example-qa-row .q { color: #7c3aed; flex-shrink: 0; font-weight: 600; font-size: 0.7rem; }
+.example-qa-row .a { color: #1a1a2e; font-weight: 500; }
+
+/* Plan summary card */
+.example-plan-card {
+  background: #faf9fe; border: 1px solid #eee8ff;
+  border-radius: 10px; padding: 13px 16px; margin-top: 10px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5px 10px;
+  font-size: 0.72rem; color: #5d5d78;
+}
+.example-plan-card b { color: #1a1a2e; font-weight: 600; }
+.example-plan-card .ready {
+  grid-column: 1 / -1; margin-top: 6px; padding-top: 8px;
+  border-top: 1px solid #e8dfff;
+  font-size: 0.8rem; font-weight: 600; color: #7c3aed;
+}
+
+/* Status rows */
+.example-status-list { display: flex; flex-direction: column; gap: 7px; }
+.example-status-row {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 0.79rem; color: #444; font-weight: 500;
+}
+.example-status-icon {
+  width: 19px; height: 19px; border-radius: 50%;
+  background: #ecfdf5; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.example-warn-box {
+  display: flex; align-items: flex-start; gap: 8px;
+  margin-top: 9px; padding: 10px 14px;
+  background: #fffbeb; border: 1px solid #fde68a;
+  border-radius: 8px; font-size: 0.74rem; color: #92400e;
+  line-height: 1.5;
+}
+
+/* Mini performance card */
+.example-perf {
+  display: flex; align-items: center; gap: 16px;
+  background: #fafafc; border: 1px solid #f0f0f5;
+  border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+}
+.example-perf-stat { text-align: center; }
+.example-perf-stat .val { font-size: 1.1rem; font-weight: 700; color: #16a34a; letter-spacing: -0.02em; }
+.example-perf-stat .lbl { font-size: 0.66rem; color: #999; margin-top: 1px; }
+
+.example-insight {
+  display: flex; gap: 9px; align-items: flex-start;
+  background: #faf9fe; border: 1px solid #eee8ff;
+  border-radius: 8px; padding: 11px 14px;
+  font-size: 0.76rem; color: #4a3a7a; line-height: 1.5;
+}
+
+/* Sparkline in example */
+.example-sparkline { display: flex; align-items: flex-end; gap: 2px; height: 24px; margin-left: auto; }
+.example-sparkline-bar { width: 4px; border-radius: 2px; background: #e8e8f0; }
+.example-sparkline-bar.up { background: #16a34a; }
+.example-sparkline-bar.down { background: #fda4af; }
+
+/* ── Features ─────────────────────────────────────────────── */
+.features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 60px; }
+
+.feature-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 32px;
+  transition: all var(--transition);
+}
+.feature-card:hover { border-color: var(--border-hover); transform: translateY(-4px); box-shadow: 0 20px 48px rgba(0,0,0,0.3); }
+
+.feature-icon {
+  width: 50px; height: 50px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 22px;
+  background: linear-gradient(135deg, rgba(0,200,240,0.10), rgba(139,92,246,0.10));
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.015em; }
+.feature-card p { font-size: 0.86rem; color: var(--text-dim); line-height: 1.6; }
+
+/* ── Guardrails Highlight ─────────────────────────────────── */
+.guardrails {
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.guardrails::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(0,200,240,0.15), transparent);
+}
+
+.guardrails-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 90px; align-items: center; }
+
+.guardrails-list { display: flex; flex-direction: column; gap: 12px; }
+.guardrail-item {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 18px 20px; border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.015); border: 1px solid var(--border);
+  transition: all var(--transition);
+}
+.guardrail-item:hover { border-color: var(--border-hover); background: rgba(255,255,255,0.025); }
+.guardrail-check {
+  flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-3), #4ade80);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; color: #000; font-weight: 800; margin-top: 1px;
+}
+.guardrail-item h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.01em; }
+.guardrail-item p { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
+
+.guardrails-visual { display: flex; align-items: center; justify-content: center; }
+
+.shield-icon {
+  width: 220px; height: 220px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,200,240,0.06), transparent 70%);
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.shield-icon::after {
+  content: ''; position: absolute; inset: -24px; border-radius: 50%;
+  border: 1px solid rgba(0,200,240,0.08);
+  animation: spin-slow 24s linear infinite;
+}
+.shield-icon::before {
+  content: ''; position: absolute; inset: -40px; border-radius: 50%;
+  border: 1px solid rgba(0,200,240,0.04);
+  animation: spin-slow 30s linear infinite reverse;
+}
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+
+/* ── Waitlist ─────────────────────────────────────────────── */
+.waitlist-inner { text-align: center; }
+
+.waitlist-form-wrap { margin-top: 44px; display: flex; justify-content: center; }
+
+.waitlist-form { display: flex; gap: 10px; max-width: 520px; width: 100%; }
+
+.waitlist-input {
+  flex: 1; padding: 16px 22px; border-radius: 999px;
+  background: var(--bg-card); border: 1px solid var(--border);
+  color: #fff; font-size: 0.94rem; font-family: 'Inter', sans-serif;
+  outline: none; transition: all var(--transition);
+  letter-spacing: -0.01em;
+}
+.waitlist-input:focus { border-color: rgba(0,200,240,0.5); box-shadow: 0 0 0 4px rgba(0,200,240,0.06); }
+.waitlist-input::placeholder { color: var(--text-dim); }
+
+.waitlist-submit {
+  padding: 16px 32px; border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff; font-weight: 600; font-size: 0.94rem; border: none;
+  cursor: pointer; white-space: nowrap; transition: all var(--transition);
+  letter-spacing: -0.01em;
+  box-shadow: 0 0 30px var(--glow-1), 0 8px 20px rgba(0,0,0,0.3);
+}
+.waitlist-submit:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 0 50px var(--glow-1), 0 12px 28px rgba(0,0,0,0.4); }
+.waitlist-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.waitlist-success {
+  margin-top: 18px; font-size: 0.92rem; color: #4ade80; display: none;
+  font-weight: 500;
+}
+
+.waitlist-count {
+  margin-top: 20px; font-size: 0.8rem; color: var(--text-dim);
+}
+.waitlist-count strong { color: #fff; font-weight: 600; }
+
+/* ── Footer ───────────────────────────────────────────────── */
+.footer {
+  padding: 44px 0; border-top: 1px solid var(--border);
+  text-align: center; font-size: 0.8rem; color: var(--text-dim);
+  letter-spacing: -0.01em;
+}
+
+/* ── Dashboard Preview ─────────────────────────────────────── */
+.dash-section {
+  background: linear-gradient(180deg, var(--bg-deep) 0%, #050512 40%, #f5f5f7 40%);
+  padding-bottom: 80px;
+}
+
+.dash-preview {
+  background: #ffffff;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 2px 24px rgba(0,0,0,0.06), 0 8px 48px rgba(0,0,0,0.08);
+  font-family: 'Inter', system-ui, sans-serif;
+  color: #1a1a2e;
+  margin-top: 52px;
+}
+
+/* Dash top bar */
+.dash-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 30px; border-bottom: 1px solid #f0f0f5;
+}
+.dash-logo { font-weight: 700; font-size: 1.02rem; color: #1a1a2e; letter-spacing: -0.02em; }
+.dash-logo-dot { display: inline-block; width: 8px; height: 8px; border-radius: 3px; background: #8b5cf6; margin-right: 6px; }
+.dash-nav { display: flex; gap: 26px; font-size: 0.82rem; color: #999; font-weight: 500; }
+.dash-nav .active { color: #1a1a2e; font-weight: 600; }
+.dash-user { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; font-weight: 500; }
+.dash-avatar { width: 33px; height: 33px; border-radius: 50%; background: #8b5cf6; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; }
+
+/* Dash body */
+.dash-body { padding: 30px; }
+
+.dash-greeting { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+.dash-subtitle { font-size: 0.84rem; color: #aaa; margin-bottom: 30px; }
+
+/* Stat cards row */
+.dash-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 30px; }
+.dash-stat {
+  background: #fafafc; border-radius: 16px; padding: 20px 22px;
+  border: 1px solid #f0f0f5;
+  transition: box-shadow 0.2s;
+}
+.dash-stat:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+.dash-stat-label { font-size: 0.7rem; color: #aaa; font-weight: 500; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+.dash-stat-val { font-size: 1.55rem; font-weight: 700; letter-spacing: -0.025em; }
+.dash-stat-sub { font-size: 0.72rem; color: #bbb; margin-top: 3px; }
+.dash-stat-val.green { color: #16a34a; }
+.dash-stat-val.blue { color: #2563eb; }
+
+/* Strategies table header */
+.dash-section-title {
+  font-size: 0.9rem; font-weight: 700; margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  letter-spacing: -0.01em;
+}
+.dash-section-title .count { font-size: 0.75rem; color: #bbb; font-weight: 500; }
+
+/* Strategy cards */
+.dash-strategies { display: flex; flex-direction: column; gap: 10px; margin-bottom: 26px; }
+
+.dash-strat {
+  display: grid; grid-template-columns: 1.5fr 0.8fr 1fr 1fr 0.7fr;
+  align-items: center; padding: 17px 22px;
+  background: #fafafc; border: 1px solid #f0f0f5;
+  border-radius: 14px; gap: 12px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.dash-strat:hover { box-shadow: 0 2px 14px rgba(0,0,0,0.05); border-color: #e8e8f0; }
+
+.dash-strat-name { font-weight: 600; font-size: 0.88rem; letter-spacing: -0.015em; }
+.dash-strat-pair { font-size: 0.72rem; color: #bbb; margin-top: 1px; }
+
+.dash-badge {
+  display: inline-block; padding: 4px 11px; border-radius: 999px;
+  font-size: 0.7rem; font-weight: 600;
+}
+.dash-badge--live { background: #ecfdf5; color: #059669; }
+
+.dash-strat-pnl { font-weight: 700; font-size: 0.9rem; letter-spacing: -0.01em; }
+.dash-strat-pnl.up { color: #16a34a; }
+
+.dash-strat-meta { font-size: 0.78rem; color: #aaa; }
+.dash-strat-meta span { display: block; }
+.dash-strat-meta .val { color: #1a1a2e; font-weight: 600; }
+
+/* Mini sparkline */
+.dash-sparkline { display: flex; align-items: flex-end; gap: 2px; height: 30px; }
+.dash-sparkline-bar { width: 6px; border-radius: 3px; background: #e8e8f0; transition: background 0.3s; }
+.dash-sparkline-bar.up { background: #16a34a; }
+.dash-sparkline-bar.down { background: #fda4af; }
+
+/* Portfolio manager card */
+.dash-pm-card {
+  background: #faf9fe; border: 1px solid #eee8ff; border-radius: 16px;
+  padding: 20px 22px; display: flex; gap: 14px; align-items: flex-start;
+}
+.dash-pm-icon {
+  flex-shrink: 0; width: 42px; height: 42px; border-radius: 12px;
+  background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  display: flex; align-items: center; justify-content: center;
+}
+.dash-pm-content h4 { font-size: 0.86rem; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.015em; }
+.dash-pm-content p { font-size: 0.8rem; color: #777; line-height: 1.55; }
+
+/* Equity curve placeholder */
+.dash-chart {
+  background: #fafafc; border: 1px solid #f0f0f5;
+  border-radius: 16px; padding: 22px; margin-bottom: 26px;
+}
+.dash-chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.dash-chart-title { font-size: 0.86rem; font-weight: 700; letter-spacing: -0.01em; }
+.dash-chart-period { display: flex; gap: 4px; }
+.dash-chart-period span {
+  padding: 5px 11px; border-radius: 7px; font-size: 0.7rem; font-weight: 500;
+  color: #bbb; cursor: default; transition: all 0.2s;
+}
+.dash-chart-period span.active { background: #1a1a2e; color: #fff; }
+
+.dash-equity-svg { width: 100%; height: 140px; }
+.dash-equity-line { fill: none; stroke: #8b5cf6; stroke-width: 2.2; stroke-linecap: round; }
+.dash-equity-fill { fill: url(#equityGrad); }
+.dash-equity-grid { stroke: #f0f0f5; stroke-width: 1; }
+
+/* Dash responsive */
+@media (max-width: 900px) {
+  .dash-stats { grid-template-columns: repeat(2, 1fr); }
+  .dash-strat { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .dash-nav { display: none; }
+}
+@media (max-width: 600px) {
+  .dash-stats { grid-template-columns: 1fr; }
+  .dash-strat { grid-template-columns: 1fr; }
+  .dash-topbar { padding: 14px 18px; }
+  .dash-body { padding: 18px; }
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; gap: 50px; }
+  .hero-visual { order: -1; }
+  .hero-terminal { max-width: 100%; }
+  .hero-floating-card { right: 0; bottom: -30px; }
+  .steps-layout { grid-template-columns: 1fr; gap: 40px; }
+  .example-panel { position: static; }
+  .features-grid { grid-template-columns: repeat(2, 1fr); }
+  .guardrails-inner { grid-template-columns: 1fr; gap: 44px; }
+  .guardrails-visual { order: -1; }
+}
+
+@media (max-width: 600px) {
+  section { padding: 80px 0; }
+  .hero { padding: 130px 0 80px; }
+  .features-grid { grid-template-columns: 1fr; }
+  .waitlist-form { flex-direction: column; align-items: stretch; }
+  .waitlist-submit { text-align: center; justify-content: center; }
+  .hero-actions { flex-direction: column; }
+  .btn { justify-content: center; }
+  .nav-cta { display: none; }
+}
+
+/* ── Scroll Reveal ────────────────────────────────────────── */
+.reveal {
+  opacity: 0; transform: translateY(34px);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal--visible { opacity: 1; transform: translateY(0); }
+
+/* ── Section divider accent ───────────────────────────────── */
+.section-accent {
+  position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+  width: 120px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent-1), transparent);
+  opacity: 0.4;
+}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-orb bg-orb--1"></div>
+<div class="bg-orb bg-orb--2"></div>
+<div class="bg-orb bg-orb--3"></div>
+
+<!-- ── Nav ──────────────────────────────────────────────── -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <span class="nav-logo-icon">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+  <polygon points="12,2 22,12 12,22 2,12"/>
+  <line x1="12" y1="8" x2="12" y2="16"/>
+  <line x1="8" y1="12" x2="16" y2="12"/>
+</svg>
+</span>
+      Tirado AI
+    </a>
+    <a href="#waitlist" class="nav-cta">Join Waitlist</a>
+  </div>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="container hero-inner">
+    <div>
+      <div class="hero-badge reveal">
+        <span class="hero-badge-dot"></span>
+        Early Access — Limited Spots
+      </div>
+      <h1 class="hero-title reveal">
+        Trading, <span class="hl">democratized</span>.<br>Your ideas, automated.
+      </h1>
+      <p class="hero-desc reveal">
+        You don’t need a finance degree to trade. Just describe your idea in plain
+        English — Tirado AI turns it into a live, autonomous strategy with built-in
+        safety guardrails and a dashboard anyone can understand.
+      </p>
+      <div class="hero-actions reveal">
+        <a href="#waitlist" class="btn btn--primary">Get Early Access →</a>
+        <a href="#how-it-works" class="btn btn--ghost">How It Works ↓</a>
+      </div>
+    </div>
+    <div class="hero-visual reveal">
+      <div class="hero-terminal">
+        <div class="hero-terminal-bar">
+          <span class="hero-terminal-dot hero-terminal-dot--r"></span>
+          <span class="hero-terminal-dot hero-terminal-dot--y"></span>
+          <span class="hero-terminal-dot hero-terminal-dot--g"></span>
+        </div>
+        <div class="hero-terminal-body">
+          <span class="prompt">tirado ~ $</span> describe-strategy<br>
+          <span style="color:#a78bfa;">strategy:</span> I want to trade the opening range breakout on EURUSD. If price breaks above the first 15-minute candle of the London session, go long. Stop loss at the low of that range, take profit at twice the range. Only risk 2% of my account.<br><br>
+          <span class="prompt">tirado ~ $</span> <span style="color:#4ade80;">✓ Strategy parsed — opening range breakout detected</span><br>
+          <span style="color:#4ade80;">✓ Guardrails applied — 4 risk rules active</span><br>
+          <span style="color:#4ade80;">✓ Connected to MT5 &amp; TradingView</span><br>
+          <span style="color:#4ade80;">✓ Agent deployed — monitoring London session</span><br>
+          <span class="cursor"></span>
+        </div>
+      </div>
+      <div class="hero-floating-card">
+        <div class="val">+23.4%</div>
+        <div class="label">Strategy Alpha · Last 30d</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How It Works ─────────────────────────────────────── -->
+<section id="how-it-works">
+  <div class="container">
+    <div class="section-label reveal">How It Works</div>
+    <h2 class="section-title reveal">From <span class="highlight">words</span> to <span class="highlight">execution</span> in minutes.</h2>
+    <p class="section-subtitle reveal">No jargon. No code. No finance degree required. Just say what you want — our proprietary LLM pipeline handles the rest.</p>
+
+    <div class="steps-layout">
+
+        <div class="steps-col">
+          <div class="step-card reveal" data-step="1">
+            <div class="step-num">01</div>
+            <h3>Describe Your Strategy in Plain English</h3>
+            <p>Say it however makes sense to you. "Buy when it breaks above yesterday’s high and sell when it dips below." No fancy terms needed — if you can describe it, our AI can run it.</p>
+          </div>
+
+          <div class="step-card reveal" data-step="2">
+            <div class="step-num">02</div>
+            <h3>AI Plans, You Refine</h3>
+            <p>Our AI doesn’t just read your strategy — it asks smart questions to nail down the details. Take profit target? Stop loss level? How much per trade? Which assets? It makes sure nothing is left vague before building your plan. And if you change your mind, just say so — the plan adapts instantly.</p>
+          </div>
+
+          <div class="step-card reveal" data-step="3">
+            <div class="step-num">03</div>
+            <h3>Autonomous Execution With Guardrails</h3>
+            <p>When you're happy with the plan, hit approve. Tirado AI automatically links to your trading platform — MetaTrader 4/5, TradingView, cTrader, and more — using simplified one-click webhooks. No manual bridge setup, no config files. Once connected, your strategy runs 24/7, wrapped in automatic safety checks: max loss limits, position caps, and hard stop-losses that can't be turned off.</p>
+          </div>
+
+          <div class="step-card reveal" data-step="4">
+            <div class="step-num">04</div>
+            <h3>Monitor &amp; Optimize</h3>
+            <p>See how your strategies are doing in one clean, simple dashboard — no confusing charts or Wall Street jargon. Run up to 10 strategies at once, and get helpful nudges from your AI portfolio manager. It watches your back and gives you a heads up when something needs attention.</p>
+          </div>
+        </div>
+
+        <div class="example-panel reveal" id="examplePanel">
+          <div class="example-panel-bar">
+            <span class="example-panel-dot example-panel-dot--r"></span>
+            <span class="example-panel-dot example-panel-dot--y"></span>
+            <span class="example-panel-dot example-panel-dot--g"></span>
+            <span class="example-panel-title">Strategy Builder</span>
+          </div>
+          <div class="example-panel-body" id="exampleBody">
+
+            <!-- Step 1: Describe -->
+            <div class="example-dash-step" data-dash-step="1">
+              <div class="example-dash-label">You Describe</div>
+              <div class="example-msg">
+                "I want to trade the <span class="em">opening range breakout</span> on <span class="em">EURUSD</span>. If price breaks above the first 15-minute candle of the London session, go long. Stop loss at the low of that range. Take profit at twice the range. Only risk 2% of my account."
+              </div>
+              <div class="example-confirm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg>
+                Got it &mdash; opening range breakout on EURUSD, 2% risk
+              </div>
+            </div>
+
+            <!-- Step 2: AI Plans -->
+            <div class="example-dash-step" data-dash-step="2">
+              <div class="example-dash-label">AI Refines Your Plan</div>
+              <div class="example-qa">
+                <div class="example-qa-row"><span class="q">Q:</span><span class="a">Take profit target?</span></div>
+                <div class="example-qa-row" style="padding-left:12px;color:#7c3aed;font-size:0.72rem;">&rarr; Twice the opening range</div>
+                <div class="example-qa-row"><span class="q">Q:</span><span class="a">Stop loss level?</span></div>
+                <div class="example-qa-row" style="padding-left:12px;color:#7c3aed;font-size:0.72rem;">&rarr; At the low of the range</div>
+                <div class="example-qa-row"><span class="q">Q:</span><span class="a">Risk per trade?</span></div>
+                <div class="example-qa-row" style="padding-left:12px;color:#7c3aed;font-size:0.72rem;">&rarr; 2% max</div>
+                <div class="example-qa-row"><span class="q">Q:</span><span class="a">Which days?</span></div>
+                <div class="example-qa-row" style="padding-left:12px;color:#7c3aed;font-size:0.72rem;">&rarr; Tuesday&ndash;Thursday only</div>
+              </div>
+              <div class="example-plan-card">
+                <div><b>Name</b> London Breakout</div>
+                <div><b>Asset</b> EURUSD only</div>
+                <div><b>Entry</b> Break above 15-min high</div>
+                <div><b>Stop loss</b> Low of range</div>
+                <div><b>Take profit</b> 2&times; opening range</div>
+                <div><b>Risk</b> 2% per trade</div>
+                <div class="ready">&#10003; Plan ready &mdash; look good? Hit launch.</div>
+              </div>
+            </div>
+
+            <!-- Step 3: Execute -->
+            <div class="example-dash-step" data-dash-step="3">
+              <div class="example-dash-label">Goes Live</div>
+              <div class="example-status-list">
+                <div class="example-status-row">
+                  <span class="example-status-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg></span>
+                  Safety checks applied &mdash; max 2% risk, stop-loss locked
+                </div>
+                <div class="example-status-row">
+                  <span class="example-status-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg></span>
+                  Connected to your MT5 account
+                </div>
+                <div class="example-status-row">
+                  <span class="example-status-icon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"/></svg></span>
+                  Agent live &mdash; watching London open each morning
+                </div>
+              </div>
+              <div class="example-warn-box">
+                <span style="flex-shrink:0;">&#9888;</span>
+                <span>No trade if opening range exceeds 40 pips<br>(volatility guard active)</span>
+              </div>
+            </div>
+
+            <!-- Step 4: Monitor -->
+            <div class="example-dash-step" data-dash-step="4">
+              <div class="example-dash-label">You Monitor</div>
+              <div class="example-perf">
+                <div>
+                  <div style="font-weight:700;font-size:0.82rem;color:#1a1a2e;letter-spacing:-0.01em;">London Breakout</div>
+                  <div style="font-size:0.7rem;color:#aaa;">EURUSD &middot; Running 8 days</div>
+                </div>
+                <div class="example-sparkline">
+                  <span class="example-sparkline-bar down" style="height:55%"></span>
+                  <span class="example-sparkline-bar down" style="height:40%"></span>
+                  <span class="example-sparkline-bar up" style="height:55%"></span>
+                  <span class="example-sparkline-bar up" style="height:65%"></span>
+                  <span class="example-sparkline-bar down" style="height:50%"></span>
+                  <span class="example-sparkline-bar up" style="height:70%"></span>
+                  <span class="example-sparkline-bar up" style="height:85%"></span>
+                  <span class="example-sparkline-bar up" style="height:100%"></span>
+                </div>
+              </div>
+              <div style="display:flex;gap:16px;font-size:0.78rem;color:#555;margin-bottom:10px;">
+                <span>Profit: <b style="color:#16a34a;">+$342</b></span>
+                <span>Win rate: <b style="color:#1a1a2e;">71%</b></span>
+                <span>Best day: <b style="color:#16a34a;">+$156</b></span>
+              </div>
+              <div class="example-insight">
+                <span style="flex-shrink:0;font-size:1rem;">&#128161;</span>
+                <span><b>AI Insight:</b> This strategy is performing well, but you have two other EURUSD strategies running. Consider reducing overlap to avoid concentration risk.</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+<!-- ── Guardrails Deep-Dive ─────────────────────────────── -->
+<section class="guardrails">
+  <div class="container guardrails-inner">
+    <div class="reveal">
+      <div class="section-label">Safety by Design</div>
+      <h2 class="section-title">Guardrails that <span class="highlight">cannot</span> be bypassed.</h2>
+      <p class="section-subtitle" style="margin-bottom: 28px;">
+        Every autonomous strategy runs inside a hardened safety envelope. These aren't suggestions — they're enforced at the execution layer.
+      </p>
+      <div class="guardrails-list">
+        <div class="guardrail-item">
+          <div class="guardrail-check">✓</div>
+          <div>
+            <h4>Max Drawdown Limit</h4>
+            <p>Hard stop when drawdown hits your defined threshold — positions are closed automatically.</p>
+          </div>
+        </div>
+        <div class="guardrail-item">
+          <div class="guardrail-check">✓</div>
+          <div>
+            <h4>Position Size Caps</h4>
+            <p>No single trade exceeds the percentage of portfolio you set. Override attempts are rejected at the broker level.</p>
+          </div>
+        </div>
+        <div class="guardrail-item">
+          <div class="guardrail-check">✓</div>
+          <div>
+            <h4>Correlation Circuit Breakers</h4>
+            <p>If multiple strategies concentrate risk in the same sector or asset, the system automatically reduces exposure.</p>
+          </div>
+        </div>
+        <div class="guardrail-item">
+          <div class="guardrail-check">✓</div>
+          <div>
+            <h4>Earnings &amp; Event Blackouts</h4>
+            <p>Strategies pause automatically around earnings, FOMC, and other high-volatility events you choose.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="guardrails-visual reveal">
+      <div class="shield-icon">
+<svg width="90" height="100" viewBox="0 0 24 28" fill="none" stroke="#00d4ff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.6">
+  <path d="M12 2L2 7v6c0 5.5 4.3 11.2 10 13 5.7-1.8 10-7.5 10-13V7L12 2z"/>
+  <polyline points="8,13 11,16 16,9"/>
+</svg>
+</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features Grid ────────────────────────────────────── -->
+<section>
+  <div class="container">
+    <div class="section-label reveal">Platform</div>
+    <h2 class="section-title reveal">Everything you need to <span class="highlight">trade smarter</span>.</h2>
+    <p class="section-subtitle reveal" style="margin-bottom: 0;">A complete stack for the modern autonomous trader — no glue code, no duct tape.</p>
+
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="3" width="8" height="8" rx="1.5"/>
+  <rect x="13" y="13" width="8" height="8" rx="1.5"/>
+  <line x1="14" y1="11" x2="11" y2="14"/>
+  <line x1="13" y1="8" x2="10" y2="11"/>
+</svg></div>
+        <h3>Multi-Broker &amp; Platform Support</h3>
+        <p>MetaTrader 4/5, TradingView, cTrader, and more. One interface, any execution venue.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="4" y1="20" x2="4" y2="10"/>
+  <line x1="10" y1="20" x2="10" y2="4"/>
+  <line x1="16" y1="20" x2="16" y2="14"/>
+  <polyline points="4,10 10,4 16,14 22,8" stroke="#a78bfa"/>
+</svg></div>
+        <h3>Real-Time Analytics</h3>
+        <p>Live P&amp;L, equity curves, Sharpe, Sortino, Calmar ratios — all updated tick-by-tick.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="10" r="7"/>
+  <circle cx="9" cy="9" r="1.5" fill="#00d4ff" stroke="none"/>
+  <circle cx="15" cy="9" r="1.5" fill="#00d4ff" stroke="none"/>
+  <path d="M9,15c1.5,2,4.5,2,6,0"/>
+  <line x1="12" y1="3" x2="12" y2="6"/>
+  <circle cx="12" cy="2" r="1" fill="#00d4ff" stroke="none"/>
+</svg></div>
+        <h3>Proprietary LLM Agents</h3>
+        <p>Purpose-built models fine-tuned on market microstructure — not generic chatbots with a prompt.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="4" y="11" width="16" height="11" rx="2"/>
+  <circle cx="12" cy="16" r="1.5" fill="#00d4ff" stroke="none"/>
+  <line x1="12" y1="16" x2="12" y2="18"/>
+  <path d="M7,11V7a5,5,0,0,1,10,0v4"/>
+</svg></div>
+        <h3>Zero-Trust Security Model</h3>
+        <p>API keys encrypted at rest, isolated execution environments, and read-only broker access where possible.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="12" r="10"/>
+  <polyline points="12,7 12,12 16,15"/>
+  <polyline points="16,3 18,7 22,5" stroke="#a78bfa"/>
+</svg></div>
+        <h3>Strategy Backtesting</h3>
+        <p>Run your natural-language strategy against years of historical data before risking a single dollar.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M14,20a2,2,0,0,1-4,0"/>
+  <path d="M18,9A6,6,0,0,0,6,9c0,5-2,7-2,7h16S18,14,18,9Z"/>
+  <line x1="20" y1="4" x2="17" y2="7" stroke="#a78bfa"/>
+</svg></div>
+        <h3>Intelligent Alerts</h3>
+        <p>Your AI portfolio manager flags anomalies, correlation drift, and regime changes — before they hurt you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Dashboard Preview ─────────────────────────────────── -->
+<section class="dash-section">
+  <div class="container">
+    <div class="section-label reveal">Your Dashboard</div>
+    <h2 class="section-title reveal">Clean, simple, <span class="highlight">everything at a glance</span>.</h2>
+    <p class="section-subtitle reveal">No complicated terminals. No Wall Street clutter. Just the numbers that matter, presented clearly.</p>
+
+    <div class="dash-preview reveal">
+      <!-- Top bar -->
+      <div class="dash-topbar">
+        <div class="dash-logo"><span class="dash-logo-dot"></span>Tirado</div>
+        <div class="dash-nav">
+          <span class="active">Dashboard</span>
+          <span>Strategies</span>
+          <span>History</span>
+          <span>Settings</span>
+        </div>
+        <div class="dash-user">
+          Alex
+          <div class="dash-avatar">A</div>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="dash-body">
+        <div class="dash-greeting">Good morning, Alex</div>
+        <div class="dash-subtitle">Here's how your strategies are doing today.</div>
+
+        <!-- Stat cards -->
+        <div class="dash-stats">
+          <div class="dash-stat">
+            <div class="dash-stat-label">Total P&amp;L</div>
+            <div class="dash-stat-val green">+$3,240</div>
+            <div class="dash-stat-sub">+4.8% this month</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-label">Win Rate</div>
+            <div class="dash-stat-val blue">67%</div>
+            <div class="dash-stat-sub">41 wins · 20 losses</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-label">Active Strategies</div>
+            <div class="dash-stat-val">3</div>
+            <div class="dash-stat-sub">of 10 available slots</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-stat-label">Open Positions</div>
+            <div class="dash-stat-val">2</div>
+            <div class="dash-stat-sub">EURUSD · GBPUSD</div>
+          </div>
+        </div>
+
+        <!-- Equity curve -->
+        <div class="dash-chart">
+          <div class="dash-chart-header">
+            <div class="dash-chart-title">Equity Curve</div>
+            <div class="dash-chart-period">
+              <span>1W</span><span class="active">1M</span><span>3M</span><span>ALL</span>
+            </div>
+          </div>
+          <svg class="dash-equity-svg" viewBox="0 0 700 140" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="equityGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.12"/>
+                <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.0"/>
+              </linearGradient>
+            </defs>
+            <!-- Grid lines -->
+            <line x1="0" y1="35" x2="700" y2="35" class="dash-equity-grid"/>
+            <line x1="0" y1="70" x2="700" y2="70" class="dash-equity-grid"/>
+            <line x1="0" y1="105" x2="700" y2="105" class="dash-equity-grid"/>
+            <!-- Equity line: slight dip then steady climb -->
+            <path d="M0,95 C50,100 80,98 140,90 C200,82 240,88 280,78 C320,68 340,55 380,65 C420,75 440,48 480,55 C520,62 540,35 600,30 C640,27 670,20 700,25" class="dash-equity-line"/>
+            <path d="M0,95 C50,100 80,98 140,90 C200,82 240,88 280,78 C320,68 340,55 380,65 C420,75 440,48 480,55 C520,62 540,35 600,30 C640,27 670,20 700,25 L700,140 L0,140 Z" class="dash-equity-fill"/>
+          </svg>
+        </div>
+
+        <!-- Active strategies -->
+        <div class="dash-section-title">
+          Active Strategies
+          <span class="count">3 of 10 slots used</span>
+        </div>
+        <div class="dash-strategies">
+
+          <div class="dash-strat">
+            <div>
+              <div class="dash-strat-name">Opening Range Breakout</div>
+              <div class="dash-strat-pair">EURUSD · London Session</div>
+            </div>
+            <div><span class="dash-badge dash-badge--live">● Live</span></div>
+            <div class="dash-strat-pnl up">+$1,840</div>
+            <div class="dash-strat-meta">
+              <span>Win rate <span class="val">71%</span></span>
+              <span>Running <span class="val">12 days</span></span>
+            </div>
+            <div class="dash-sparkline">
+              <span class="dash-sparkline-bar down" style="height:40%"></span>
+              <span class="dash-sparkline-bar down" style="height:35%"></span>
+              <span class="dash-sparkline-bar up" style="height:50%"></span>
+              <span class="dash-sparkline-bar up" style="height:55%"></span>
+              <span class="dash-sparkline-bar down" style="height:45%"></span>
+              <span class="dash-sparkline-bar up" style="height:60%"></span>
+              <span class="dash-sparkline-bar up" style="height:65%"></span>
+              <span class="dash-sparkline-bar up" style="height:70%"></span>
+              <span class="dash-sparkline-bar up" style="height:80%"></span>
+              <span class="dash-sparkline-bar up" style="height:100%"></span>
+            </div>
+          </div>
+
+          <div class="dash-strat">
+            <div>
+              <div class="dash-strat-name">Moving Average Crossover</div>
+              <div class="dash-strat-pair">SPY · Daily</div>
+            </div>
+            <div><span class="dash-badge dash-badge--live">● Live</span></div>
+            <div class="dash-strat-pnl up">+$1,100</div>
+            <div class="dash-strat-meta">
+              <span>Win rate <span class="val">62%</span></span>
+              <span>Running <span class="val">28 days</span></span>
+            </div>
+            <div class="dash-sparkline">
+              <span class="dash-sparkline-bar up" style="height:45%"></span>
+              <span class="dash-sparkline-bar down" style="height:40%"></span>
+              <span class="dash-sparkline-bar down" style="height:30%"></span>
+              <span class="dash-sparkline-bar up" style="height:50%"></span>
+              <span class="dash-sparkline-bar up" style="height:55%"></span>
+              <span class="dash-sparkline-bar down" style="height:48%"></span>
+              <span class="dash-sparkline-bar up" style="height:60%"></span>
+              <span class="dash-sparkline-bar up" style="height:70%"></span>
+              <span class="dash-sparkline-bar up" style="height:75%"></span>
+              <span class="dash-sparkline-bar up" style="height:100%"></span>
+            </div>
+          </div>
+
+          <div class="dash-strat">
+            <div>
+              <div class="dash-strat-name">Support Bounce</div>
+              <div class="dash-strat-pair">BTCUSD · 4H</div>
+            </div>
+            <div><span class="dash-badge dash-badge--live">● Live</span></div>
+            <div class="dash-strat-pnl" style="color:#f59e0b;">+$300</div>
+            <div class="dash-strat-meta">
+              <span>Win rate <span class="val">55%</span></span>
+              <span>Running <span class="val">6 days</span></span>
+            </div>
+            <div class="dash-sparkline">
+              <span class="dash-sparkline-bar down" style="height:50%"></span>
+              <span class="dash-sparkline-bar down" style="height:30%"></span>
+              <span class="dash-sparkline-bar down" style="height:25%"></span>
+              <span class="dash-sparkline-bar up" style="height:45%"></span>
+              <span class="dash-sparkline-bar up" style="height:55%"></span>
+              <span class="dash-sparkline-bar down" style="height:48%"></span>
+              <span class="dash-sparkline-bar up" style="height:60%"></span>
+              <span class="dash-sparkline-bar up" style="height:70%"></span>
+              <span class="dash-sparkline-bar up" style="height:85%"></span>
+              <span class="dash-sparkline-bar up" style="height:100%"></span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Portfolio manager insight -->
+        <div class="dash-pm-card">
+          <div class="dash-pm-icon">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M10,17h4v4h-4z"/>
+  <circle cx="12" cy="9" r="5"/>
+  <line x1="12" y1="14" x2="12" y2="17"/>
+  <line x1="8" y1="9" x2="8" y2="9" stroke-width="3"/>
+  <line x1="11.5" y1="4.5" x2="11.5" y2="4.5" stroke-width="3"/>
+  <line x1="15" y1="6" x2="15" y2="6" stroke-width="3"/>
+</svg>
+</div>
+          <div class="dash-pm-content">
+            <h4>Your AI Portfolio Manager</h4>
+            <p>"Your EURUSD and GBPUSD strategies are both running during London hours and have a 0.76 correlation. You might want to reduce position size on one of them to avoid overexposure. Want me to handle that for you?"</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Waitlist ─────────────────────────────────────────── -->
+<section id="waitlist">
+  <div class="container container--tight waitlist-inner">
+    <div class="section-label reveal">Join the Waitlist</div>
+    <h2 class="section-title reveal">Be among the <span class="highlight">first</span> to trade autonomously.</h2>
+    <p class="section-subtitle reveal" style="max-width: none;">
+      We’re onboarding users in small cohorts. No finance background required — just bring your ideas. Sign up to reserve your spot and get early access.
+    </p>
+
+    <div class="waitlist-form-wrap reveal">
+      <form class="waitlist-form" id="waitlistForm">
+        <input type="email" class="waitlist-input" id="waitlistEmail" placeholder="you@example.com" required>
+        <button type="submit" class="waitlist-submit" id="waitlistBtn">Join Waitlist →</button>
+      </form>
+    </div>
+    <div class="waitlist-success" id="waitlistSuccess">You're on the list! We'll reach out when your cohort opens.</div>
+    <div class="waitlist-count reveal">
+      <strong><span id="counter">3,847</span></strong> people already on the waitlist
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ───────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="container">
+    © 2026 Tirado AI. All rights reserved. Trading is for everyone. We’re here to prove it.
+  </div>
+</footer>
+
+<script>
+/* ── Nav scroll effect ──────────────────────────────────── */
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('nav--scrolled', window.scrollY > 40);
+});
+
+/* ── Scroll reveal ──────────────────────────────────────── */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('reveal--visible');
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ── Waitlist form ──────────────────────────────────────── */
+const form = document.getElementById('waitlistForm');
+const input = document.getElementById('waitlistEmail');
+const btn = document.getElementById('waitlistBtn');
+const success = document.getElementById('waitlistSuccess');
+
+var WAITLIST_URL = 'YOUR_GOOGLE_SCRIPT_URL_HERE';
+
+	form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  var email = input.value.trim();
+  if (!email) return;
+
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  try {
+    var res = await fetch(WAITLIST_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, source: 'landing-page' })
+    });
+
+    if (!res.ok) throw new Error('Server error');
+
+    form.style.display = 'none';
+    success.style.display = 'block';
+  } catch (err) {
+    console.error('Waitlist submit error:', err);
+    form.style.display = 'none';
+    success.style.display = 'block';
+  }
+
+  btn.disabled = false;
+});
+
+/* ── Animated counter ───────────────────────────────────── */
+function animateCounter() {
+  const el = document.getElementById('counter');
+  const target = 3847;
+  const duration = 2000;
+  const start = performance.now();
+
+  function tick(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    el.textContent = Math.floor(target * eased).toLocaleString();
+    if (progress < 1) requestAnimationFrame(tick);
+  }
+
+  /* Only animate when visible */
+  const counterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        requestAnimationFrame(tick);
+        counterObserver.disconnect();
+      }
+    });
+  }, { threshold: 0.5 });
+  counterObserver.observe(el);
+}
+animateCounter();
+
+/* ── Step card ↔ dashboard panel interactivity ─────────── */
+(function() {
+  var stepCards = document.querySelectorAll('.step-card[data-step]');
+  var dashSteps = document.querySelectorAll('.example-dash-step[data-dash-step]');
+
+  if (!stepCards.length || !dashSteps.length) return;
+
+  // Highlight first dashboard step by default
+  dashSteps[0].classList.add('highlight');
+
+  stepCards.forEach(function(card) {
+    card.addEventListener('mouseenter', function() {
+      var step = this.getAttribute('data-step');
+      dashSteps.forEach(function(ds) {
+        ds.classList.toggle('highlight', ds.getAttribute('data-dash-step') === step);
+      });
+    });
+    card.addEventListener('mouseleave', function() {
+      // Reset to first step highlighted
+      dashSteps.forEach(function(ds, i) {
+        ds.classList.toggle('highlight', i === 0);
+      });
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
