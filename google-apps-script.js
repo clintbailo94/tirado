@@ -35,30 +35,32 @@ function doPost(e) {
 
     sheet.appendRow([timestamp, email, source]);
 
-    // Send email notification
-    MailApp.sendEmail({
-      to: NOTIFY_EMAIL,
-      subject: '[Tirado AI] New Waitlist Signup — ' + email,
-      body: [
-        'New waitlist signup on Tirado AI:',
-        '',
-        'Email:     ' + email,
-        'Source:    ' + source,
-        'Timestamp: ' + timestamp,
-        '',
-        '— Tirado AI Waitlist'
-      ].join('\n')
-    });
+    // Send email notification (wrapped so sheet logging still works if email fails)
+    try {
+      MailApp.sendEmail({
+        to: NOTIFY_EMAIL,
+        subject: '[Tirado AI] New Waitlist Signup — ' + email,
+        body: [
+          'New waitlist signup on Tirado AI:',
+          '',
+          'Email:     ' + email,
+          'Source:    ' + source,
+          'Timestamp: ' + timestamp,
+          '',
+          '— Tirado AI Waitlist'
+        ].join('\n')
+      });
+    } catch (mailErr) {
+      console.error('Email send failed: ' + mailErr.message);
+    }
 
     return ContentService
       .createTextOutput(JSON.stringify({ success: true }))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setHeader('Access-Control-Allow-Origin', '*');
+      .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return ContentService
       .createTextOutput(JSON.stringify({ success: false, error: err.message }))
-      .setMimeType(ContentService.MimeType.JSON)
-      .setHeader('Access-Control-Allow-Origin', '*');
+      .setMimeType(ContentService.MimeType.JSON);
   }
 }
 
